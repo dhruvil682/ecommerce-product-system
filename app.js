@@ -73,6 +73,18 @@ const imageMiddleware = (req, res) => {
   });
 };
 
+routers.post("/lessons", (req, res, next) => {
+  let serverDBC = databaseConnectionToServer();
+  createProduct(serverDBC, req.body)
+    .then((msg) => {
+      res.send("Created Successfully");
+    })
+    .catch((error) => {
+      res.status(404).send("ERRORSS");
+    });
+});
+
+
 app.use("/image-lesson", imageMiddleware);
 
 routers.get("/lessons", (req, res, next) => {
@@ -134,23 +146,6 @@ async function getOrderList(product) {
     return message;
   }
 }
-
-
-routers.post("/lessons", (req, res, next) => {
-  let serverDBC = databaseConnectionToServer();
-  createProduct(serverDBC, req.body)
-    .then((msg) => {
-      res.send("Created Successfully");
-    })
-    .catch((error) => {
-      res.status(404).send("ERRORSS");
-    });
-});
-
-
-
-
-
 
 
 
