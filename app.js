@@ -44,7 +44,7 @@ async function MainMethod() {
 MainMethod().catch(console.error);
 
 //connection to database
-function connectToDB() {
+function databaseConnectionToServer() {
   const uri =
     "mongodb+srv://dhruvil:dhruvilpatel@cluster0.lgbotdr.mongodb.net/?retryWrites=true&w=majority";
   let serverDBC = new MongoClient(uri);
@@ -52,9 +52,6 @@ function connectToDB() {
   return serverDBC;
 }
 
-/**
- * API's
- */
 
 const imageMiddleware = (req, res) => {
   const imagepath = path.join(__dirname, "lesson-images", req.url);
@@ -69,17 +66,27 @@ const imageMiddleware = (req, res) => {
 
 app.use("/lesson-images", imageMiddleware);
 
-// API to get all lessons
 routers.get("/lessons", (req, res, next) => {
-  let serverDBC = connectToDB();
+  let serverDBC = databaseConnectionToServer();
   listDatabase(serverDBC).then((data) => {
     res.send(data);
   });
 });
 
-// API to get all lessons
+
+routers.delete("/lessons/:id", (req, res) => {
+  let serverDBC = databaseConnectionToServer();
+  deleteLesson(serverDBC, req.params.id)
+    .then((msg) => {
+      res.send(`deleted successfully`);
+    })
+    .catch((error) => {
+      res.status(404).send(error);
+    });
+});
+
 routers.post("/search", (req, res, next) => {
-  let serverDBC = connectToDB();
+  let serverDBC = databaseConnectionToServer();
   searchText(serverDBC, req.body.text)
     .then((data) => {
       console.log(data);
@@ -90,29 +97,18 @@ routers.post("/search", (req, res, next) => {
     });
 });
 
-// API to get all orders
+
 routers.get("/orders", (req, res, next) => {
-  let serverDBC = connectToDB();
+  let serverDBC = databaseConnectionToServer();
   listORders(serverDBC).then((data) => {
     res.send(data);
   });
 });
 
-// API to create the lessons
-routers.post("/lessons", (req, res, next) => {
-  let serverDBC = connectToDB();
-  createProduct(serverDBC, req.body)
-    .then((msg) => {
-      res.send("Lesson Created Successfully");
-    })
-    .catch((error) => {
-      res.status(404).send("somethings went wrong please try again");
-    });
-});
 
-// API to create the orders
+
 routers.post("/orders", (req, res, next) => {
-  let serverDBC = connectToDB();
+  let serverDBC = databaseConnectionToServer();
   createOrder(serverDBC, req.body)
     .then((msg) => {
       if (msg) {
@@ -129,9 +125,22 @@ routers.post("/orders", (req, res, next) => {
     });
 });
 
-// API to update the lessons
+
+routers.post("/lessons", (req, res, next) => {
+  let serverDBC = databaseConnectionToServer();
+  createProduct(serverDBC, req.body)
+    .then((msg) => {
+      res.send("Lesson Created Successfully");
+    })
+    .catch((error) => {
+      res.status(404).send("somethings went wrong please try again");
+    });
+});
+
+
+
 routers.put("/lessons/:id", (req, res) => {
-  let serverDBC = connectToDB();
+  let serverDBC = databaseConnectionToServer();
   updateLesson(serverDBC, req.params.id, req.body)
     .then((data) => {
       res.send(`Lesson updated Successfully`);
@@ -143,19 +152,10 @@ routers.put("/lessons/:id", (req, res) => {
 });
 
 //API to delete the lesson
-routers.delete("/lessons/:id", (req, res) => {
-  let serverDBC = connectToDB();
-  deleteLesson(serverDBC, req.params.id)
-    .then((msg) => {
-      res.send(`deleted successfully`);
-    })
-    .catch((error) => {
-      res.status(404).send(error);
-    });
-});
+
 
 routers.delete("/orders", (req, res) => {
-  let serverDBC = connectToDB();
+  let serverDBC = databaseConnectionToServer();
   deleteOrders(serverDBC, req.params.id)
     .then((msg) => {
       res.send(`deleted successfully`);
