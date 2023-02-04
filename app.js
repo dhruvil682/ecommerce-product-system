@@ -41,6 +41,15 @@ async function MainMethod() {
   }
 }
 
+
+routers.get("/orders", (req, res, next) => {
+  let serverDBC = databaseConnectionToServer();
+  getOrderList(serverDBC).then((data) => {
+    res.send(data);
+  });
+});
+
+
 MainMethod().catch(console.error);
 
 //connection to database
@@ -68,7 +77,7 @@ app.use("/lesson-images", imageMiddleware);
 
 routers.get("/lessons", (req, res, next) => {
   let serverDBC = databaseConnectionToServer();
-  listDatabase(serverDBC).then((data) => {
+  LISTALLDB(serverDBC).then((data) => {
     res.send(data);
   });
 });
@@ -93,17 +102,10 @@ routers.post("/search", (req, res, next) => {
       res.send(data);
     })
     .catch((error) => {
-      res.status(404).send("somethings went wrong please try again");
+      res.status(404).send("ERRORSS");
     });
 });
 
-
-routers.get("/orders", (req, res, next) => {
-  let serverDBC = databaseConnectionToServer();
-  listORders(serverDBC).then((data) => {
-    res.send(data);
-  });
-});
 
 
 
@@ -112,28 +114,38 @@ routers.post("/orders", (req, res, next) => {
   createOrder(serverDBC, req.body)
     .then((msg) => {
       if (msg) {
-        res.send(`Orders Created Successfully`);
+        res.send(`Successfully Created`);
       } else {
         res
           .status(404)
-          .send(`The Lesson Name ${req.body.lessonName} is out of stock`);
+          .send(`${req.body.lessonName}  out of stock`);
       }
     })
     .catch((error) => {
       console.log(error);
-      res.status(404).send("somethings went wrong please try again");
+      res.status(404).send("ERROR");
     });
 });
+
+async function getOrderList(product) {
+  const db = await product.db("test").collection("orders").find().toArray();
+  if (db) {
+    return db;
+  } else {
+    const message = `Sorry no data available`;
+    return message;
+  }
+}
 
 
 routers.post("/lessons", (req, res, next) => {
   let serverDBC = databaseConnectionToServer();
   createProduct(serverDBC, req.body)
     .then((msg) => {
-      res.send("Lesson Created Successfully");
+      res.send("Created Successfully");
     })
     .catch((error) => {
-      res.status(404).send("somethings went wrong please try again");
+      res.status(404).send("ERRORSS");
     });
 });
 
@@ -141,9 +153,9 @@ routers.post("/lessons", (req, res, next) => {
 
 routers.put("/lessons/:id", (req, res) => {
   let serverDBC = databaseConnectionToServer();
-  updateLesson(serverDBC, req.params.id, req.body)
+  updateTheLessonss(serverDBC, req.params.id, req.body)
     .then((data) => {
-      res.send(`Lesson updated Successfully`);
+      res.send(`updated Successfully`);
     })
     .catch((error) => {
       res.status(404).send(error);
@@ -165,11 +177,7 @@ routers.delete("/orders", (req, res) => {
     });
 });
 
-/**
- * Methods to interact with the Database
- */
 
-//search by text
 async function searchText(serverDBC, searchedText) {
   let serachRESULT = await serverDBC
     .db("test")
@@ -181,7 +189,7 @@ async function searchText(serverDBC, searchedText) {
   return serachRESULT;
 }
 
-// create the lessons into the database
+
 async function createProduct(serverDBC, newListing) {
   const result = await serverDBC
     .db("test")
@@ -190,24 +198,22 @@ async function createProduct(serverDBC, newListing) {
   return result;
 }
 
-// create the lessons into the database
 async function createOrder(server, serverDBC) {
   let serverData = server.db("test").collection("orders");
-  let selectedProduct = await server
+  let selectProducts = await server
     .db("test")
     .collection("products")
     .findOne({
       _id: new ObjectId(serverDBC.lessonId),
     });
-  console.log(selectedProduct);
-  let id = selectedProduct._id.toString();
-  if (selectedProduct.space) {
-    selectedProduct.space = selectedProduct.space - 1;
+  let id = selectProducts._id.toString();
+  if (selectProducts.space) {
+    selectProducts.space = selectProducts.space - 1;
     console.log(serverDBC);
     serverData.insertOne(serverDBC);
-    updateLesson(server, id, selectedProduct)
+    updateTheLessonss(server, id, selectProducts)
       .then((data) => {
-        console.log(`Lesson updated Successfully`);
+        console.log(`updated Successfully`);
       })
       .catch((error) => {
         console.log(error);
@@ -218,49 +224,6 @@ async function createOrder(server, serverDBC) {
   }
 }
 
-// get all lessons from database
-async function listDatabase(product) {
-  const db = await product.db("test").collection("products").find().toArray();
-  if (db) {
-    return db;
-  } else {
-    const message = `Sorry no data available`;
-    return message;
-  }
-}
-// get all lessons from ORders
-async function listORders(product) {
-  const db = await product.db("test").collection("orders").find().toArray();
-  if (db) {
-    return db;
-  } else {
-    const message = `Sorry no data available`;
-    return message;
-  }
-}
-
-//update lessons in database
-async function updateLesson(serverDBC, id, newData) {
-  const result = await serverDBC
-    .db("test")
-    .collection("products")
-    .updateOne({ _id: new ObjectId(id) }, { $set: newData }, (err, result) => {
-      serverDBC.close();
-    });
-  return result;
-}
-
-//delete the lessons from the database
-async function deleteLesson(serverDBC, id) {
-  const result = await serverDBC
-    .db("test")
-    .collection("products")
-    .deleteOne({ _id: new ObjectId(id) }, (err, result) => {
-      serverDBC.close();
-    });
-  return result;
-}
-//delete the orders from the database
 async function deleteOrders(serverDBC, id) {
   await serverDBC
     .db("test")
@@ -274,6 +237,42 @@ async function deleteOrders(serverDBC, id) {
     });
   return result;
 }
+
+
+async function LISTALLDB(product) {
+  const db = await product.db("test").collection("products").find().toArray();
+  if (db) {
+    return db;
+  } else {
+    const message = `no data`;
+    return message;
+  }
+}
+
+
+
+async function updateTheLessonss(serverDBC, id, newData) {
+  const result = await serverDBC
+    .db("test")
+    .collection("products")
+    .updateOne({ _id: new ObjectId(id) }, { $set: newData }, (err, result) => {
+      serverDBC.close();
+    });
+  return result;
+}
+
+
+async function deleteLesson(serverDBC, id) {
+  const result = await serverDBC
+    .db("test")
+    .collection("products")
+    .deleteOne({ _id: new ObjectId(id) }, (err, result) => {
+      serverDBC.close();
+    });
+  return result;
+}
+
+
 
 app.use(middleWareLogGer);
 app.use("/", routers);
