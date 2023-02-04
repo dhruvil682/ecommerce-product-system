@@ -63,17 +63,17 @@ function databaseConnectionToServer() {
 
 
 const imageMiddleware = (req, res) => {
-  const imagepath = path.join(__dirname, "lesson-images", req.url);
+  const imagepath = path.join(__dirname, "image-lesson", req.url);
   fs.stat(imagepath, (err, stats) => {
     if (err) {
-      res.status(404).send("Image not present");
+      res.status(404).send("Empty folder");
       return;
     }
     fs.createReadStream(imagepath).pipe(res);
   });
 };
 
-app.use("/lesson-images", imageMiddleware);
+app.use("/image-lesson", imageMiddleware);
 
 routers.get("/lessons", (req, res, next) => {
   let serverDBC = databaseConnectionToServer();
@@ -85,7 +85,7 @@ routers.get("/lessons", (req, res, next) => {
 
 routers.delete("/lessons/:id", (req, res) => {
   let serverDBC = databaseConnectionToServer();
-  deleteLesson(serverDBC, req.params.id)
+  LessonDelete(serverDBC, req.params.id)
     .then((msg) => {
       res.send(`deleted successfully`);
     })
@@ -262,7 +262,7 @@ async function updateTheLessonss(serverDBC, id, newData) {
 }
 
 
-async function deleteLesson(serverDBC, id) {
+async function LessonDelete(serverDBC, id) {
   const result = await serverDBC
     .db("test")
     .collection("products")
