@@ -27,7 +27,7 @@ async function MainMethod() {
       .collection("orders")
       .deleteMany({})
       .then((res) => {
-        // console.log("orders Deleted successfully");
+        
       })
       .catch((err) => {
         console.log(err);
@@ -52,7 +52,7 @@ routers.get("/orders", (req, res, next) => {
 
 MainMethod().catch(console.error);
 
-//connection to database
+
 function databaseConnectionToServer() {
   const uri =
     "mongodb+srv://dhruvil:dhruvilpatel@cluster0.lgbotdr.mongodb.net/?retryWrites=true&w=majority";
@@ -96,7 +96,7 @@ routers.delete("/lessons/:id", (req, res) => {
 
 routers.post("/search", (req, res, next) => {
   let serverDBC = databaseConnectionToServer();
-  searchText(serverDBC, req.body.text)
+  searchBYTEXT(serverDBC, req.body.text)
     .then((data) => {
       console.log(data);
       res.send(data);
@@ -178,7 +178,7 @@ routers.delete("/orders", (req, res) => {
 });
 
 
-async function searchText(serverDBC, searchedText) {
+async function searchBYTEXT(serverDBC, searchedText) {
   let serachRESULT = await serverDBC
     .db("test")
     .collection("products")
