@@ -98,7 +98,6 @@ routers.post("/search", (req, res, next) => {
   let serverDBC = databaseConnectionToServer();
   searchBYTEXT(serverDBC, req.body.text)
     .then((data) => {
-      console.log(data);
       res.send(data);
     })
     .catch((error) => {
@@ -122,7 +121,6 @@ routers.post("/orders", (req, res, next) => {
       }
     })
     .catch((error) => {
-      console.log(error);
       res.status(404).send("ERROR");
     });
 });
