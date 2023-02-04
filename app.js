@@ -12,7 +12,7 @@ app.use(cors());
 //Middle ware to server request
 const middleWareLogGer = (req, res, next) => {
   console.log("Middle ware to server request name", `${req.method} ${req.originalUrl}`);
-  next();
+  next()
 };
 
 app.use(express.json());
