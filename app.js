@@ -149,19 +149,9 @@ routers.post("/lessons", (req, res, next) => {
 
 
 
-routers.put("/lessons/:id", (req, res) => {
-  let serverDBC = databaseConnectionToServer();
-  updateTheLessonss(serverDBC, req.params.id, req.body)
-    .then((data) => {
-      res.send(`updated Successfully`);
-    })
-    .catch((error) => {
-      res.status(404).send(error);
-      console.log(error);
-    });
-});
 
-//API to delete the lesson
+
+
 
 
 routers.delete("/orders", (req, res) => {
@@ -207,14 +197,11 @@ async function createOrder(server, serverDBC) {
   let id = selectProducts._id.toString();
   if (selectProducts.space) {
     selectProducts.space = selectProducts.space - 1;
-    console.log(serverDBC);
     serverData.insertOne(serverDBC);
     updateTheLessonss(server, id, selectProducts)
       .then((data) => {
-        console.log(`updated Successfully`);
       })
       .catch((error) => {
-        console.log(error);
       });
     return true;
   } else {
@@ -228,14 +215,22 @@ async function deleteOrders(serverDBC, id) {
     .collection("orders")
     .deleteMany({})
     .then((res) => {
-      console.log("orders Deleted successfully");
     })
     .catch((err) => {
-      console.log(err);
     });
   return result;
 }
 
+routers.put("/lessons/:id", (req, res) => {
+  let serverDBC = databaseConnectionToServer();
+  updateTheLessonss(serverDBC, req.params.id, req.body)
+    .then((data) => {
+      res.send(`updated Successfully`);
+    })
+    .catch((error) => {
+      res.status(404).send(error);
+    });
+});
 
 async function LISTALLDB(product) {
   const db = await product.db("test").collection("products").find().toArray();
@@ -275,5 +270,5 @@ async function LessonDelete(serverDBC, id) {
 app.use(middleWareLogGer);
 app.use("/", routers);
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`http://localhost:${port}`);
 });
