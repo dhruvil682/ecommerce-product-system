@@ -1,14 +1,13 @@
 const express = require("express");
 const app = express();
-app.use(cors());
+const cors = require("cors");
 const port = process.env.PORT || 3000;
 const routers = express.Router();
 const path = require("path");
 const { MongoClient } = require("mongodb");
 const fs = require("fs");
 const { ObjectId } = require("mongodb");
-const cors = require("cors");
-
+app.use(cors());
 
 const middleWareLogGer = (req, res, next) => {
   console.log("server console", `${req.method} ${req.originalUrl}`);
@@ -18,7 +17,7 @@ const middleWareLogGer = (req, res, next) => {
 app.use(express.json());
 async function main() {
   const uri =
-    "mongodb+srv://priyam123:priyam123@cluster0.bmbzjws.mongodb.net/?retryWrites=true&w=majority";
+    "mongodb+srv://dhruvil:dhruvilpatel@cluster0.lgbotdr.mongodb.net/?retryWrites=true&w=majority";
   var client = new MongoClient(uri);
   try {
     await client.connect();
@@ -46,7 +45,7 @@ main().catch(console.error);
 //connection to database
 function connectToDB() {
   const uri =
-    "mongodb+srv://priyam123:priyam123@cluster0.bmbzjws.mongodb.net/?retryWrites=true&w=majority";
+    "mongodb+srv://dhruvil:dhruvilpatel@cluster0.lgbotdr.mongodb.net/?retryWrites=true&w=majority";
   let client = new MongoClient(uri);
   client.connect();
   return client;
