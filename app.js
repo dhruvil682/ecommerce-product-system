@@ -16,13 +16,13 @@ const middleWareLogGer = (req, res, next) => {
 };
 
 app.use(express.json());
-async function main() {
+async function MainMethod() {
   const uri =
     "mongodb+srv://dhruvil:dhruvilpatel@cluster0.lgbotdr.mongodb.net/?retryWrites=true&w=majority";
-  var client = new MongoClient(uri);
+  var serverDBC = new MongoClient(uri);
   try {
-    await client.connect();
-    await client
+    await serverDBC.connect();
+    await serverDBC
       .db("test")
       .collection("orders")
       .deleteMany({})
@@ -36,20 +36,20 @@ async function main() {
     console.error(e);
   } finally {
     setTimeout(() => {
-      client.close();
+      serverDBC.close();
     }, 1500);
   }
 }
 
-main().catch(console.error);
+MainMethod().catch(console.error);
 
 //connection to database
 function connectToDB() {
   const uri =
     "mongodb+srv://dhruvil:dhruvilpatel@cluster0.lgbotdr.mongodb.net/?retryWrites=true&w=majority";
-  let client = new MongoClient(uri);
-  client.connect();
-  return client;
+  let serverDBC = new MongoClient(uri);
+  serverDBC.connect();
+  return serverDBC;
 }
 
 /**
@@ -71,16 +71,16 @@ app.use("/lesson-images", imageMiddleware);
 
 // API to get all lessons
 routers.get("/lessons", (req, res, next) => {
-  let client = connectToDB();
-  listDatabase(client).then((data) => {
+  let serverDBC = connectToDB();
+  listDatabase(serverDBC).then((data) => {
     res.send(data);
   });
 });
 
 // API to get all lessons
 routers.post("/search", (req, res, next) => {
-  let client = connectToDB();
-  searchText(client, req.body.text)
+  let serverDBC = connectToDB();
+  searchText(serverDBC, req.body.text)
     .then((data) => {
       console.log(data);
       res.send(data);
@@ -92,16 +92,16 @@ routers.post("/search", (req, res, next) => {
 
 // API to get all orders
 routers.get("/orders", (req, res, next) => {
-  let client = connectToDB();
-  listORders(client).then((data) => {
+  let serverDBC = connectToDB();
+  listORders(serverDBC).then((data) => {
     res.send(data);
   });
 });
 
 // API to create the lessons
 routers.post("/lessons", (req, res, next) => {
-  let client = connectToDB();
-  createProduct(client, req.body)
+  let serverDBC = connectToDB();
+  createProduct(serverDBC, req.body)
     .then((msg) => {
       res.send("Lesson Created Successfully");
     })
@@ -112,8 +112,8 @@ routers.post("/lessons", (req, res, next) => {
 
 // API to create the orders
 routers.post("/orders", (req, res, next) => {
-  let client = connectToDB();
-  createOrder(client, req.body)
+  let serverDBC = connectToDB();
+  createOrder(serverDBC, req.body)
     .then((msg) => {
       if (msg) {
         res.send(`Orders Created Successfully`);
@@ -131,8 +131,8 @@ routers.post("/orders", (req, res, next) => {
 
 // API to update the lessons
 routers.put("/lessons/:id", (req, res) => {
-  let client = connectToDB();
-  updateLesson(client, req.params.id, req.body)
+  let serverDBC = connectToDB();
+  updateLesson(serverDBC, req.params.id, req.body)
     .then((data) => {
       res.send(`Lesson updated Successfully`);
     })
@@ -144,8 +144,8 @@ routers.put("/lessons/:id", (req, res) => {
 
 //API to delete the lesson
 routers.delete("/lessons/:id", (req, res) => {
-  let client = connectToDB();
-  deleteLesson(client, req.params.id)
+  let serverDBC = connectToDB();
+  deleteLesson(serverDBC, req.params.id)
     .then((msg) => {
       res.send(`deleted successfully`);
     })
@@ -155,8 +155,8 @@ routers.delete("/lessons/:id", (req, res) => {
 });
 
 routers.delete("/orders", (req, res) => {
-  let client = connectToDB();
-  deleteOrders(client, req.params.id)
+  let serverDBC = connectToDB();
+  deleteOrders(serverDBC, req.params.id)
     .then((msg) => {
       res.send(`deleted successfully`);
     })
@@ -170,8 +170,8 @@ routers.delete("/orders", (req, res) => {
  */
 
 //search by text
-async function searchText(client, searchedText) {
-  let serachRESULT = await client
+async function searchText(serverDBC, searchedText) {
+  let serachRESULT = await serverDBC
     .db("test")
     .collection("products")
     .find({
@@ -182,8 +182,8 @@ async function searchText(client, searchedText) {
 }
 
 // create the lessons into the database
-async function createProduct(client, newListing) {
-  const result = await client
+async function createProduct(serverDBC, newListing) {
+  const result = await serverDBC
     .db("test")
     .collection("products")
     .insertOne(newListing);
@@ -191,20 +191,20 @@ async function createProduct(client, newListing) {
 }
 
 // create the lessons into the database
-async function createOrder(server, client) {
+async function createOrder(server, serverDBC) {
   let serverData = server.db("test").collection("orders");
   let selectedProduct = await server
     .db("test")
     .collection("products")
     .findOne({
-      _id: new ObjectId(client.lessonId),
+      _id: new ObjectId(serverDBC.lessonId),
     });
   console.log(selectedProduct);
   let id = selectedProduct._id.toString();
   if (selectedProduct.space) {
     selectedProduct.space = selectedProduct.space - 1;
-    console.log(client);
-    serverData.insertOne(client);
+    console.log(serverDBC);
+    serverData.insertOne(serverDBC);
     updateLesson(server, id, selectedProduct)
       .then((data) => {
         console.log(`Lesson updated Successfully`);
@@ -240,29 +240,29 @@ async function listORders(product) {
 }
 
 //update lessons in database
-async function updateLesson(client, id, newData) {
-  const result = await client
+async function updateLesson(serverDBC, id, newData) {
+  const result = await serverDBC
     .db("test")
     .collection("products")
     .updateOne({ _id: new ObjectId(id) }, { $set: newData }, (err, result) => {
-      client.close();
+      serverDBC.close();
     });
   return result;
 }
 
 //delete the lessons from the database
-async function deleteLesson(client, id) {
-  const result = await client
+async function deleteLesson(serverDBC, id) {
+  const result = await serverDBC
     .db("test")
     .collection("products")
     .deleteOne({ _id: new ObjectId(id) }, (err, result) => {
-      client.close();
+      serverDBC.close();
     });
   return result;
 }
 //delete the orders from the database
-async function deleteOrders(client, id) {
-  await client
+async function deleteOrders(serverDBC, id) {
+  await serverDBC
     .db("test")
     .collection("orders")
     .deleteMany({})
